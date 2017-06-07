@@ -1,0 +1,320 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" >
+
+    <TextView
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Serial Control"
+        android:id="@+id/textView2"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:scrollbars="vertical"/>
+
+    <SeekBar
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:max="255"
+        android:progress="1"
+        android:indeterminate="false"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Brightness"
+        android:id="@+id/textView3"
+        android:layout_marginTop="42dp"
+        android:layout_below="@+id/button3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <!-- Serial Option  -->
+    <Button
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CLEAR SERIAL MONITOR"
+        android:id="@+id/button2"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/seekBar"
+        android:layout_alignEnd="@+id/seekBar"
+        android:textAlignment="center"
+        style="@style/MojiCorner"
+        android:backgroundTint="#ffc0cb"
+        />
+    <Button
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Line Console"
+        android:id="@+id/button5"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/button2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/button2"
+        android:layout_alignEnd="@+id/button2"
+        android:textAlignment="center"
+        style="@style/MojiCorner"
+        android:backgroundTint="#bbdfe3"
+        />
+    <Button
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Print &quot; ============== &quot;"
+        android:id="@+id/button3"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/button5"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/button2"
+        android:layout_alignEnd="@+id/button2"
+        android:textAlignment="center"
+        style="@style/MojiCorner"
+        android:backgroundTint="#ffc0cb"
+        />
+    <Switch
+        android:text="Serial Options "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/BTsend"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="23dp"
+        android:layout_marginEnd="23dp"
+        android:id="@+id/sswitch1" />
+    <!-- Serial Option End  -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/lumn"
+        android:layout_alignTop="@+id/textView3"
+        android:layout_toRightOf="@+id/DisconnectBT"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/seekBar" />
+    <TextView
+        android:id="@+id/mojiTV1"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textView2"
+        android:text="Choose your file"
+        android:scrollbars="vertical"/>
+
+    <!-- Main Button  -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disconnect"
+        android:id="@+id/DisconnectBT"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:backgroundTint="#303030"
+        android:textAlignment="center"
+        style="@style/MojiCorner"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open"
+        android:id="@+id/openFile"
+        android:textAlignment="center"
+        android:backgroundTint="#ffc0cb"
+        style="@style/MojiCorner"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BT Send"
+        android:id="@+id/BTsend"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/openFile"
+        android:textAlignment="center"
+        style="@style/MojiCorner"
+        android:backgroundTint="#bbdfe3"
+        />
+    <!-- Main Button End  -->
+
+    <!-- Manual Override  -->
+    <Switch
+        android:text="Manual Override "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/sswitch1"
+        android:layout_above="@id/openFile"
+        android:layout_marginRight="23dp"
+        android:layout_marginEnd="23dp"
+        android:id="@+id/sswitch2" />
+
+    <Button
+        android:visibility="invisible"
+        android:text="Up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/mHome"
+        android:layout_alignLeft="@+id/mHome"
+        android:layout_alignStart="@+id/mHome"
+        android:id="@+id/mUp"
+        android:textAlignment="center"
+        android:backgroundTint="#ffc0cb"
+        style="@style/MojiCorner"/>
+
+    <Button
+        android:visibility="invisible"
+        android:text="Down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mDown"
+        android:layout_alignBaseline="@+id/lumn"
+        android:layout_alignBottom="@+id/lumn"
+        android:layout_alignLeft="@+id/mHome"
+        android:layout_alignStart="@+id/mHome"
+        android:textAlignment="center"
+        android:backgroundTint="#ffc0cb"
+        style="@style/MojiCorner"/>
+    <Button
+        android:visibility="invisible"
+        android:text="Right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mRight"
+        android:layout_alignBaseline="@+id/mHome"
+        android:layout_alignBottom="@+id/mHome"
+        android:layout_toRightOf="@+id/mHome"
+        android:layout_toEndOf="@+id/mHome"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:textAlignment="center"
+        android:backgroundTint="#ffc0cb"
+        style="@style/MojiCorner"/>
+
+    <Button
+        android:visibility="invisible"
+        android:text="HOME"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/rounded_button"
+        android:id="@+id/mHome"
+        android:layout_alignTop="@+id/button3"
+        android:layout_alignLeft="@+id/openFile"
+        android:layout_alignStart="@+id/openFile"
+        android:textColor="#FFFF"
+        android:textStyle="bold"/>
+
+    <Button
+        android:visibility="invisible"
+        android:text="Left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mLeft"
+        android:textAlignment="center"
+        android:backgroundTint="#ffc0cb"
+        style="@style/MojiCorner"
+        android:layout_marginRight="9dp"
+        android:layout_marginEnd="9dp"
+        android:layout_alignBottom="@+id/mHome"
+        android:layout_toLeftOf="@+id/mHome"
+        android:layout_toStartOf="@+id/mHome" />
+
+    <Button
+        android:visibility="invisible"
+        android:text="Machine Start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mMachineStart"
+        android:textAlignment="center"
+        android:backgroundTint="#ffc0cb"
+        style="@style/MojiCorner"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/mStartAxis"/>
+
+    <Button
+        android:visibility="invisible"
+        android:text="Start Axis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mStartAxis"
+        android:textAlignment="center"
+        style="@style/MojiCorner"
+        android:backgroundTint="#bbdfe3"
+        android:layout_marginRight="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Switch
+        android:visibility="invisible"
+        android:text="Set Delay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sswitch3"
+        android:layout_marginBottom="54dp"
+        android:layout_above="@+id/sswitch1"
+        android:layout_toRightOf="@+id/mMachineStart"
+        android:layout_toEndOf="@+id/mMachineStart" />
+
+    <Button
+        android:visibility="invisible"
+        android:text="Delay Set"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/msetDelay"
+        android:textAlignment="center"
+        style="@style/MojiCorner"
+        android:backgroundTint="#bbdfe3"
+        android:layout_above="@+id/sswitch3"
+        android:layout_alignRight="@+id/sswitch3"
+        android:layout_alignEnd="@+id/sswitch3" />
+
+    <TextView
+        android:id="@+id/mojiTV2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/mRight"
+        android:layout_toEndOf="@+id/mRight"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp" />
+
+    <EditText
+        android:visibility="invisible"
+        android:id="@+id/myInputDelay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:hint="Input in milisecond"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:layout_above="@+id/msetDelay"
+        android:layout_alignRight="@+id/sswitch1"
+        android:layout_alignEnd="@+id/sswitch1"
+        />
+    <!-- Manual Override End  -->
+
+</RelativeLayout>
