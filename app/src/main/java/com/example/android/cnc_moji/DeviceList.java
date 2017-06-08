@@ -34,6 +34,8 @@ public class DeviceList extends ActionBarActivity
     private Set<BluetoothDevice> pairedDevices;
     public static String EXTRA_ADDRESS = "device_address";
 
+    String Btname = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -99,15 +101,25 @@ public class DeviceList extends ActionBarActivity
 
     private void pairedDevicesList()
     {
+
         pairedDevices = myBluetooth.getBondedDevices();
         ArrayList list = new ArrayList();
 
         if (pairedDevices.size()>0)
         {
+
             for(BluetoothDevice bt : pairedDevices)
             {
                 list.add(bt.getName() + "\n" + bt.getAddress()); //Get the device's name and the address
+                Btname = "Name: " + bt.getName() + "\n"
+                        + "Address: " + bt.getAddress() + "\n"
+                        + "BondState: " + bt.getBondState() + "\n"
+                        + "BluetoothClass: " + bt.getBluetoothClass() + "\n"
+                        + "Class: " + bt.getClass();
+                Toast.makeText(DeviceList.this, Btname, Toast.LENGTH_LONG).show();
+
             }
+
         }
         else
         {
@@ -155,6 +167,7 @@ public class DeviceList extends ActionBarActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
             return true;
         }
 

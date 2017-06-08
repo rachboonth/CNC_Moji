@@ -1,4 +1,4 @@
-package com.example.android.led_moji;
+package com.example.android.cnc_moji;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

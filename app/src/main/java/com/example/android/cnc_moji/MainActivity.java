@@ -1,6 +1,7 @@
 package com.example.android.cnc_moji;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -15,9 +16,12 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -26,11 +30,20 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.AsyncTask;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import android.content.ActivityNotFoundException;
@@ -39,8 +52,10 @@ import android.view.View.OnClickListener;
 
 import com.example.android.led_moji.R;
 
+import static android.os.Build.VERSION_CODES.M;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends ActionBarActivity  {
 
     Button BTclearSerial, BTstripes, BTdisconnect, BTsend, BTshiftUp;
     Button mHome, mUp, mDown, mLeft, mRight, mMachineStart, mStartAxis, mdelaySet;
@@ -52,8 +67,18 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE = 6384; // onActivityResult request
-    // code
 
+    /** ============================== **/
+    private static final int REQUEST_ENABLE_BT = 1;
+    ThreadConnectBTdevice myThreadConnectBTdevice;
+    ThreadConnected myThreadConnected;
+    ArrayList<BluetoothDevice> pairedDeviceArrayList;
+    ArrayAdapter<BluetoothDevice> pairedDeviceAdapter;
+    BluetoothAdapter bluetoothAdapter;
+    ListView listViewPairedDevice;
+
+    private Set<BluetoothDevice> pairedDevices;
+    /** ============================== **/
 
     String address = null;
     Integer delayValFinal = 500;
@@ -101,6 +126,7 @@ public class MainActivity extends ActionBarActivity {
         mdelaySet = (Button) findViewById(R.id.msetDelay);
         BeeDelay = (EditText)findViewById(R.id.myInputDelay);
         myOpenFileButton = (Button) findViewById(R.id.openFile) ;
+//        mUpdatePeriod = Long.parseLong(this.prefs.getString("dro_refresh", "500"));
 
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -219,7 +245,7 @@ public class MainActivity extends ActionBarActivity {
                 TextView textView2 = (TextView)dialog.findViewById(R.id.textView2);
                 textView2.setText("Testing 1 2 3");
 
-                dialog.show();
+//                dialog.show();
                 // ============ end popup view V.2 =============
                 TextView tv2 =  (TextView)findViewById(R.id.mojiTV2);
                 tv2.setText("");
@@ -380,14 +406,6 @@ public class MainActivity extends ActionBarActivity {
             }, t);
         } catch (InterruptedException e) {}
 
-//        final Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                // Do something after 5s = 5000ms
-//                //buttons[inew][jnew].setBackgroundColor(Color.Red);
-//            }
-//        }, t);
     }
 
     private void sendBTData() {
@@ -401,17 +419,20 @@ public class MainActivity extends ActionBarActivity {
                 File file = new File(sdcard,"moji.txt");
 
                 //Read text from file
-                StringBuilder text = new StringBuilder();
+               final StringBuilder text = new StringBuilder();
 
                     BufferedReader br = new BufferedReader(new FileReader(pathFileTemp));
                     String line;
                     Log.e("myfileTest",file.toString());
                     Log.e("myBrTest",br.toString());
                     text.append("moji.txt");
-
+                Timer myTimer;
+                myTimer = new Timer();
                     while ((line = br.readLine()) != null) {
                         text.append(line);
+                        //timeDelay(300);
                         btSocket.getOutputStream().write(line.toString().getBytes());
+
                         Log.e("BEEEEEEE",line);
                         text.append('\n');
                         BTsendText("\n");
@@ -419,9 +440,25 @@ public class MainActivity extends ActionBarActivity {
                        // new myAsyncUpdate().execute(); //Execute myAsyncUpdate
                        // btSocket.getOutputStream().write("\n".toString().getBytes());
                        // timeDelay(delayValFinal);
-                        TextView tv2 =  (TextView)findViewById(R.id.mojiTV2);
-                        tv2.append("OK\n");
-                        Log.e("I AM HERE","PASSING ME FUNC");
+
+
+
+                        myTimer.schedule(new TimerTask() {
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        // Do some thing
+                                        TextView tv2 = (TextView) findViewById(R.id.mojiTV2);
+                                        tv2.append("OK\n");
+
+                                    }
+                                });
+                            }
+                        }, 3000);
+
+                        //TextView tv2 =  (TextView)findViewById(R.id.mojiTV2);
+                        //tv2.append("OK\n");
+                        // Log.e("I AM HERE","PASSING ME FUNC");
 
 
                     }
@@ -605,4 +642,250 @@ public class MainActivity extends ActionBarActivity {
             progress.dismiss();
         }
     }
+
+    /** =======http://android-er.blogspot.com/2015/10/android-communicate-with-arduino-hc-06.html======= **/
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        setup();
+    }
+
+    private void setup() {
+        final TextView tv2 = (TextView) findViewById(R.id.mojiTV2);
+        final TextView tv = (TextView)findViewById(R.id.mojiTV1);
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            pairedDeviceArrayList = new ArrayList<BluetoothDevice>();
+
+            for (BluetoothDevice device : pairedDevices) {
+                pairedDeviceArrayList.add(device);
+            }
+
+            pairedDeviceAdapter = new ArrayAdapter<BluetoothDevice>(this,
+                    android.R.layout.simple_list_item_1, pairedDeviceArrayList);
+            listViewPairedDevice.setAdapter(pairedDeviceAdapter);
+
+            listViewPairedDevice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        int position, long id) {
+                    BluetoothDevice device =
+                            (BluetoothDevice) parent.getItemAtPosition(position);
+                    Toast.makeText(MainActivity.this,
+                            "Name: " + device.getName() + "\n"
+                                    + "Address: " + device.getAddress() + "\n"
+                                    + "BondState: " + device.getBondState() + "\n"
+                                    + "BluetoothClass: " + device.getBluetoothClass() + "\n"
+                                    + "Class: " + device.getClass(),
+                            Toast.LENGTH_LONG).show();
+
+                    tv.setText("start ThreadConnectBTdevice");
+                    myThreadConnectBTdevice = new ThreadConnectBTdevice(device);
+                    myThreadConnectBTdevice.start();
+                }
+            });
+        }
+    }
+
+
+
+    //Called in ThreadConnectBTdevice once connect successed
+    //to start ThreadConnected
+    private void startThreadConnected(BluetoothSocket socket){
+
+        myThreadConnected = new ThreadConnected(socket);
+        myThreadConnected.start();
+    }
+
+    /*
+    ThreadConnectBTdevice:
+    Background Thread to handle BlueTooth connecting
+    */
+    private class ThreadConnectBTdevice extends Thread {
+        TextView tv2 = (TextView) findViewById(R.id.mojiTV2);
+        TextView tv = (TextView)findViewById(R.id.mojiTV1);
+        private BluetoothSocket bluetoothSocket = null;
+        private final BluetoothDevice bluetoothDevice;
+
+
+        private ThreadConnectBTdevice(BluetoothDevice device) {
+            bluetoothDevice = device;
+
+            try {
+                bluetoothSocket = device.createRfcommSocketToServiceRecord(myUUID);
+//                textStatus.setText("bluetoothSocket: \n" + bluetoothSocket);
+                  tv.setText("bluetoothSocket: \n" + bluetoothSocket);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void run() {
+            boolean success = false;
+            try {
+                bluetoothSocket.connect();
+                success = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                final String eMessage = e.getMessage();
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+//                        textStatus.setText("something wrong bluetoothSocket.connect(): \n" + eMessage);
+                          tv.setText("something wrong bluetoothSocket.connect(): \n" + eMessage);
+                    }
+                });
+
+                try {
+                    bluetoothSocket.close();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+
+            if(success){
+                //connect successful
+                final String msgconnected = "connect successful:\n"
+                        + "BluetoothSocket: " + bluetoothSocket + "\n"
+                        + "BluetoothDevice: " + bluetoothDevice;
+
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        tv.setText("");
+                        tv2.setText("");
+                        Toast.makeText(MainActivity.this, msgconnected, Toast.LENGTH_LONG).show();
+
+//                        listViewPairedDevice.setVisibility(View.GONE);
+//                        inputPane.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                startThreadConnected(bluetoothSocket);
+
+            }else{
+                //fail
+            }
+        }
+
+        public void cancel() {
+
+            Toast.makeText(getApplicationContext(),
+                    "close bluetoothSocket",
+                    Toast.LENGTH_LONG).show();
+
+            try {
+                bluetoothSocket.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+
+    /*
+ThreadConnected:
+Background Thread to handle Bluetooth data communication
+after connected
+ */
+    private class ThreadConnected extends Thread {
+        private final BluetoothSocket connectedBluetoothSocket;
+        private final InputStream connectedInputStream;
+        private final OutputStream connectedOutputStream;
+        TextView tv2 = (TextView) findViewById(R.id.mojiTV2);
+        TextView tv = (TextView)findViewById(R.id.mojiTV1);
+
+        public ThreadConnected(BluetoothSocket socket) {
+            connectedBluetoothSocket = socket;
+            InputStream in = null;
+            OutputStream out = null;
+
+            try {
+                in = socket.getInputStream();
+                out = socket.getOutputStream();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            connectedInputStream = in;
+            connectedOutputStream = out;
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            String strRx = "";
+
+            while (true) {
+                try {
+                    bytes = connectedInputStream.read(buffer);
+                    final String strReceived = new String(buffer, 0, bytes);
+                    final String strByteCnt = String.valueOf(bytes) + " bytes received.\n";
+
+                    runOnUiThread(new Runnable(){
+
+                        @Override
+                        public void run() {
+//                            textStatus.append(strReceived);
+//                            textByteCnt.append(strByteCnt);
+
+                            tv2.append("OK\n");
+                            tv.append(strReceived);
+                            tv.append(strByteCnt);
+                        }});
+
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+
+                    final String msgConnectionLost = "Connection lost:\n"
+                            + e.getMessage();
+                    runOnUiThread(new Runnable(){
+
+                        @Override
+                        public void run() {
+//                            textStatus.setText(msgConnectionLost);
+                            tv2.append("ERROR:Connection Lost!");
+                        }});
+                }
+            }
+        }
+
+        public void write(byte[] buffer) {
+            try {
+                connectedOutputStream.write(buffer);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        public void cancel() {
+            try {
+                connectedBluetoothSocket.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
 }
